@@ -1,0 +1,93 @@
+version: "3.3"
+
+services:
+  mariadb:
+    image: wodby/mariadb:$MARIADB_TAG
+    container_name: "${PROJECT_NAME}_mariadb"
+    stop_grace_period: 30s
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    ports:
+      - "10133:3306"
+#    volumes:
+#      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+#      - wpdb:/var/lib/mysql # I want to manage volumes manually.
+
+  php:
+    image: wodby/wordpress-php:$PHP_TAG
+    container_name: "${PROJECT_NAME}_php"
+    environment:
+      DB_HOST: $DB_HOST
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME
+      PHP_FPM_USER: wodby
+      PHP_FPM_GROUP: wodby
+      ## Read instructions at https://wodby.com/stacks/wordpress/docs/local/xdebug/
+      PHP_XDEBUG: 0
+      PHP_XDEBUG_DEFAULT_ENABLE: 0
+      PHP_XDEBUG_REMOTE_AUTOSTART: 0
+      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
+      PHP_XDEBUG_IDEKEY: ${XDEBUG_IDE_KEY}
+      PHP_IDE_CONFIG: serverName=${XDEBUG_SERVER_NAME}
+      PHP_XDEBUG_REMOTE_HOST: ${XDEBUG_REMOTE_HOST}
+    volumes:
+      - ${BASE_DIR}/docker/.htaccess:${DOCROOT}/.htaccess
+      - ${BASE_DIR}/docker/wp-install.sh:/opt/wp-install.sh
+      - ${BASE_DIR}/docker/wp-config.php:${DOCROOT}/wp-config.php
+      - ${BASE_DIR}/vendor/johnpbloch/wordpress-core:${DOCROOT}
+      - ${BASE_DIR}:${PROJECT_MOUNT_PATH}
+  composer:
+    image: composer:1.9.1
+    container_name: "${PROJECT_NAME}_composer"
+    volumes:
+      - ${BASE_DIR}:${PROJECT_MOUNT_PATH}
+    working_dir: ${PROJECT_MOUNT_PATH}
+  node:
+    image: node:12.18.2
+    container_name: "${PROJECT_NAME}_node"
+    volumes:
+      - ${BASE_DIR}:${PROJECT_MOUNT_PATH}
+    working_dir: ${PROJECT_MOUNT_PATH}
+  nginx:
+    image: wodby/nginx:$NGINX_TAG
+    container_name: "${PROJECT_NAME}_nginx"
+    depends_on:
+      - php
+    environment:
+      NGINX_STATIC_OPEN_FILE_CACHE: "off"
+      NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_BACKEND_HOST: php
+      NGINX_VHOST_PRESET: wordpress
+      #NGINX_SERVER_ROOT: /var/www/html/subdir
+    volumes:
+      - ${BASE_DIR}/docker/.htaccess:${DOCROOT}/.htaccess
+      - ${BASE_DIR}/docker/wp-config.php:${DOCROOT}/wp-config.php
+      - ${BASE_DIR}/vendor/johnpbloch/wordpress-core:${DOCROOT}
+      - ${BASE_DIR}:${PROJECT_MOUNT_PATH}
+# Options for macOS users (https://wodby.com/stacks/wordpress/docs/local/docker-for-mac/)
+#      - ./:/var/www/html:cached # User-guided caching
+#      - docker-sync:/var/www/html # Docker-sync
+    labels:
+      - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
+
+  traefik:
+    image: traefik:v2.0
+    container_name: "${PROJECT_NAME}_traefik"
+    command: --api.insecure=true --providers.docker
+    ports:
+      - '80:80'
+#      - '8080:8080' # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+#volumes:
+## Docker-sync for macOS users
+#  docker-sync:
+#    external: true
+## For Xdebug profiler
+#  files:
+#  wpdb:

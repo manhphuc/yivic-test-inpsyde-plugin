@@ -1,0 +1,5 @@
+actor: UnitTester
+modules:
+  enabled:
+    - Asserts
+    - YivicTestInpsyde\Wp\Plugin\Tests\Helper\Unit

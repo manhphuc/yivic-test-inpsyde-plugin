@@ -1,0 +1,47 @@
+{
+  "name": "manhphuc/yivic-test-inpsyde-plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "description": "Yivic Test Inpsyde Plugin for Inpsyde Test",
+  "homepage": "https://yivic.net/",
+  "authors": [
+    {
+      "name": "Phuc Nguyen",
+      "role": "Developer",
+      "email": "manhphucofficial@yahoo.com",
+      "homepage": "https://github.com/manhphuc"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.2",
+    "guzzlehttp/guzzle": "^7.0",
+    "illuminate/container": "^7.19"
+  },
+  "require-dev": {
+    "inpsyde/php-coding-standards": "^1",
+    "codeception/codeception": "^4.1",
+    "codeception/module-asserts": "^1.0.0",
+    "brain/monkey": "^2.2",
+    "symfony/var-dumper": "^5.1"
+  },
+  "replace": {
+    "phpunit/phunit": "^9.5.21"
+  },
+  "autoload": {
+    "psr-4": {
+      "YivicTestInpsyde\\Wp\\Plugin\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "YivicTestInpsyde\\Wp\\Plugin\\Tests\\": "tests"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}

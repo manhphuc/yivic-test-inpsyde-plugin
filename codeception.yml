@@ -1,0 +1,22 @@
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
+actor_suffix: Tester
+namespace: YivicTestInpsyde\Wp\Plugin\Tests
+bootstrap: bootstrap.php
+settings:
+  memory_limit: 256M
+  colors: true
+coverage:
+  enabled: true
+  include:
+    - src/*
+  exclude:
+    - src/Traits/*
+    - src/Interfaces/*
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
