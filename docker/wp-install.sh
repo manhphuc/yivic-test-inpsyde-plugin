@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source "$PWD/wp-content/plugins/test-inpsyde-plugin/.env"
+source "$PWD/wp-content/plugins/yivic-test-inpsyde-plugin/.env"
 #rm -f "$PWD/wp-config.php"
 #
 #wp config create \
@@ -17,4 +17,4 @@ wp core install \
   --admin_password="$WP_ADMIN_PASSWORD" \
   --admin_email="$WP_ADMIN_EMAIL"\
   --skip-email
-wp plugin activate test-inpsyde-plugin
+wp plugin activate yivic-test-inpsyde-plugin
